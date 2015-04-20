@@ -2,6 +2,9 @@ var http = require('http');
 var url = require('url');
 var querystring = require('querystring');
 
+var express = require('express');
+var cookieParser = require('cookie-parser');
+
 var define = require('./define');
 var route = require('./route');
 var mongo = require('./core/mongo');
@@ -9,7 +12,7 @@ var mongo = require('./core/mongo');
 var handleMap = route.handleMap;
 
 function start(){
-  function onRequest(request,response){
+  function onRequest(request,response,next){
     request.setEncoding('utf-8');
     var requestdata = '';
     request.on('data', function(datachunk){
@@ -26,7 +29,7 @@ function start(){
       
       if( handle && handle[method]){
         console.log("---request---path["+pathname+"] method["+method+"]---");
-        handle[method](params,response);
+        handle[method](params,response,request.cookies[define.auth_cookie_name]);
       }
       else{
         console.log("unrecognized handle... path["+pathname+"] method["+method+"]");
@@ -37,8 +40,11 @@ function start(){
     });
   }
   
-  var server = http.createServer(onRequest);
-  server.listen(define.port, function(){
+  var app = express();
+  app.use(cookieParser());
+  var server = http.createServer(app);
+  app.use(onRequest);
+  server.listen(define.port | 8891, function(){
     console.log("server["+define.port+"] has started...");
   });
   server.on('close', function(){
@@ -46,11 +52,5 @@ function start(){
   });
 }
 
-function registerHandle(pathname,handle){
-  if(pathname in handleMap) throw "handle["+pathname+"] has registered!~";return;
-  console.log("register..."+pathname);
-  handleMap[pathname] = handle;
-}
-
 exports.start = start;
-exports.registerHandle = registerHandle;
+
