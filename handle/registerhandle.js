@@ -5,10 +5,11 @@ function registerhandle(){
 }
 registerhandle.prototype = {
   get : function(params, response){
-    //response.writeHead(200,{'Content-Type': 'text/plain'});
-    //response.write("render register view, perfecting...");
-    //response.end();
-    this.post(params,response);
+    response.writeHead(200,{'Content-Type': 'text/plain'});
+    response.write("render register view, perfecting...");
+    response.write(JSON.stringify(params));
+    response.end();
+    //this.post(params,response);
   },
   
   post:function(params, response){
