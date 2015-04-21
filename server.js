@@ -21,8 +21,9 @@ function start(){
     request.on('end', function(){
       var _url = url.parse(request.url);
       var pathname = _url.pathname;
+      if(request.method == "GET") requestdata = _url.query;
       var params = querystring.parse(requestdata);
-      if(request.method == "GET") params = _url.query;
+      //if(request.method == "GET") params = _url.query;
       var handle = handleMap[pathname];
       var method = request.method.toLowerCase();
       var hasresponse = false;

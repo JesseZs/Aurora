@@ -1,24 +1,22 @@
+var define = require('../define');
 var account = require('../controller/account');
 
-function registerhandle(){
+function majorhandle(){
   this.handles = {};
-  this.handles['register'] = this.register;
-  this.handles['verifyid'] = this.verifyid;
+  this.handles['uploadwifi'] = this.uploadwifi;
 }
-registerhandle.prototype = {
-  get : function(params, response){
+majorhandle.prototype = {
+  get:function(params, response){
     response.writeHead(200,{'Content-Type': 'text/plain'});
-    response.write("render register view, perfecting...");
+    response.write("render major view, perfecting...");
     response.write(JSON.stringify(params));
     response.end();
     //this.post(params,response);
   },
-  
   post:function(params, response){
     var result = {};
     var flag = {};
     try{
-      response.writeHead(200,{'Content-Type': 'text/plain'});
       for(key in params){
         if(this.handles[key]){
           flag[key] = false;
@@ -29,14 +27,13 @@ registerhandle.prototype = {
           }.bind(this),{'key':key});
         }
       }
-      //response.end(JSON.stringify(result));
     }catch(ex){
       console.log(ex);
       response.writeHead(500,{'Content-Type': 'text/plain'});
       response.end();
     }
   },
-  
+    
   responsehandle:function(flag,params,result,response){
     for(var key in params){
       if(flag[key]) continue;
@@ -47,22 +44,21 @@ registerhandle.prototype = {
 
   },
 
-  register:function(data, response,callback,ud){
+  uploadwifi:function(data,response,callback,ud){
     var params = JSON.parse(data);
-    account.register(params,function(res){
+    account.verify_token(params.token,function(isGo,res){
       res.params = params;
-      callback(res,response,ud);
-    }.bind(this));
+      if(!isGo){
+        callback(res,response,ud);
+      }
+      else{
+        res.data = "token verify success!~ other are developing...";
+        callback(res,response,ud);
+      }
 
-  },
-  
-  verifyid:function(data, response,callback,ud){
-    var params = JSON.parse(data);
-    account.verify_id(params['user_id'],function(isDo,res){
-      callback(res,response,ud);
     }.bind(this));
   },
 
 }
 
-exports.handle = new registerhandle();
+exports.handle = new majorhandle();

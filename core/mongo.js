@@ -1,4 +1,3 @@
-
 var mongodb = require('mongodb').MongoClient;
 var define = require('../define');
 
@@ -31,3 +30,5 @@ mongoutils.prototype = {
 
 this.mongo = new mongoutils();
 this.mongo.init();
+
+

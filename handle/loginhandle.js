@@ -1,4 +1,5 @@
 var define = require('../define');
+var account = require('../controller/account');
 
 function loginhandle(){
   this.handles = {};
@@ -50,23 +51,12 @@ loginhandle.prototype = {
     var params = JSON.parse(data);
     //console.log(data);
     //console.log(params);
-    var res = {};
-    res.params = params;
-    var user_table = require('../core/mongo').mongo.table('user');
-    var user = user_table.find({'user_id': params.user_id,'user_password':params.user_password}).toArray(function(err,items){
-      if(items.length>0){
-        var auth_token = items[0]._id;
-        //response.cookie(define.auth_cookie_name,auth_token, {path: '/', maxAge: define.auth_cookie_age});
-        //console.log(items[0]);
-        res.result = 0;
-        res.user = {'user_id':items[0].user_id,'user_name':items[0].user_name};
-        res.token = auth_token;
-      }
-      else{
-        res.result = 1;
-        res.data = "user id and password are not matched!~";
-      }
-      callback(res,response,ud);
+    account.verify_login(params.user_id,params.user_password,function(isSuccess,result){
+      /*if(isSuccess){
+        response.cookie(define.auth_cookie_name,auth_token, {path: '/', maxAge: define.auth_token_age});
+      }*/
+      result.params = params;
+      callback(result,response,ud);
     }.bind(this));
     
   },
