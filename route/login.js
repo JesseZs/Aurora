@@ -1,24 +1,24 @@
+var define = require('../define');
 var account = require('../controller/account');
 
-function registerhandle(){
+function login(){
   this.handles = {};
-  this.handles['register'] = this.register;
-  this.handles['verifyid'] = this.verifyid;
+  this.handles['login'] = this.login;
 }
-registerhandle.prototype = {
-  get : function(params, response){
+login.prototype = {
+  get:function(params, response){
     response.writeHead(200,{'Content-Type': 'text/plain'});
-    response.write("render register view, perfecting...");
+    response.write("render login view, perfecting...");
     response.write(JSON.stringify(params));
     response.end();
     //this.post(params,response);
   },
-  
   post:function(params, response){
+    //console.log(params);
     var result = {};
     var flag = {};
     try{
-      response.writeHead(200,{'Content-Type': 'text/plain'});
+      //response.writeHead(200,{'Content-Type': 'text/plain'});
       for(key in params){
         if(this.handles[key]){
           flag[key] = false;
@@ -36,7 +36,7 @@ registerhandle.prototype = {
       response.end();
     }
   },
-  
+    
   responsehandle:function(flag,params,result,response){
     for(var key in params){
       if(flag[key]) continue;
@@ -47,22 +47,20 @@ registerhandle.prototype = {
 
   },
 
-  register:function(data, response,callback,ud){
+  login:function(data,response,callback,ud){
     var params = JSON.parse(data);
-    account.register(params,function(res){
-      res.params = params;
-      callback(res,response,ud);
+    //console.log(data);
+    //console.log(params);
+    account.verify_login(params.user_id,params.user_password,function(isSuccess,result){
+      /*if(isSuccess){
+        response.cookie(define.auth_cookie_name,auth_token, {path: '/', maxAge: define.auth_token_age});
+      }*/
+      result.params = params;
+      callback(result,response,ud);
     }.bind(this));
-
-  },
-  
-  verifyid:function(data, response,callback,ud){
-    var params = JSON.parse(data);
-    account.verify_id(params['user_id'],function(isDo,res){
-      callback(res,response,ud);
-    }.bind(this));
+    
   },
 
 }
 
-exports.handle = new registerhandle();
+exports = new login();
